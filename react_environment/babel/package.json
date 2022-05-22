@@ -1,0 +1,19 @@
+{
+  "name": "react_environment",
+  "version": "1.0.0",
+  "description": "<h3>리액트 개발환경 구축해보기</h3>",
+  "main": "react-dom.development.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.18.0",
+    "@babel/preset-react": "^7.17.12",
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2"
+  }
+}
