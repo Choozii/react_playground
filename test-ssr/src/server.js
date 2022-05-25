@@ -1,28 +1,39 @@
 import express from 'express';
 import fs from 'fs'; //?
 import path from 'path';
-import { renderToString } from 'react-dom/server';
-import React from 'react';
-import App from './App';
 import * as url from 'url';
-import { ServerStyleSheet } from 'styled-components';
+import { renderPage, prerenderPages } from './common';
+import lruCache from 'lru-cache';
+
+const ssrCache = new lruCache({
+  max: 100,
+  maxAge: 1000 * 60,
+});
 
 const app = express();
-const html = fs.readFileSync(path.resolve(__dirname, '../dist/index.html'), 'utf8');
+
+const prerenderHTML = {};
+for (const page of prerenderPages) {
+  const pageHtml = fs.readFileSync(path.resolve(__dirname, `../dist/${page}.html`), 'utf8');
+  prerenderHTML[page] = pageHtml;
+}
+
 app.use('/dist', express.static('dist'));
 app.get('/favicon.ico', (req, res) => res.sendStatus(204));
 app.get('*', (req, res) => {
   const parsedUrl = url.parse(req.url, true);
+  const cacheKey = parsedUrl.path;
+  if (ssrCache.has(cacheKey)) {
+    console.log('캐시 사용');
+    res.send(ssrCache.get(cacheKey));
+    return;
+  }
   const page = parsedUrl.pathname ? parsedUrl.pathname.substring(1) : 'home';
-  const sheet = new ServerStyleSheet();
 
-  const renderString = renderToString(sheet.collectStyles(<App page={page} />));
-  const styles = sheet.getStyleTags();
   const initialData = { page };
-  const result = html
-    .replace('<div id="root"></div>', `<div id="root">${renderString}</div>`)
-    .replace('__DATA_FROM_SERVER__', JSON.stringify(initialData))
-    .replace('__STYLE_FROM_SERVER__', styles);
+  const pageHtml = prerenderPages.includes(page) ? prerenderHTML[page] : renderPage(page);
+  const result = pageHtml.replace('__DATA_FROM_SERVER', JSON.stringify(initialData));
+  ssrCache.set(cacheKey, result);
   res.send(result); //완성된 html을 클라이언트에 전송
 });
 

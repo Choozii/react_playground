@@ -2,9 +2,25 @@ import React, { useEffect, useState } from 'react';
 import Home from './Home';
 import About from './About';
 import styled from 'styled-components';
+import Icon from './icon.png';
+
+//폰 API 함수
+const fetchUserName = () => {
+  const usernames = ['mike', 'june', 'jamie'];
+  return new Promise(resolve => {
+    const username = usernames[Math.floor(math.random() * 3)];
+    setTimeout(() => resolve(username), 100);
+  });
+};
 
 export default function App(props) {
   const [page, setPage] = useState(props.page);
+  const [username, setUserName] = useState(null);
+
+  useEffect(() => {
+    fetchUserName().then(data => setUserName(data));
+  }, []);
+
   useEffect(() => {
     window.onpopstate = event => {
       //뒤로가기 시 onpopstate event handler 실행
@@ -27,7 +43,8 @@ export default function App(props) {
       <button data-page="about" onClick={onChangePage}>
         About
       </button>
-      <PageComponent />
+      <img src={Icon} />
+      <PageComponent username={username} />
     </Container>
   );
 }
