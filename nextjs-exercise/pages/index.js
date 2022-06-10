@@ -4,14 +4,14 @@ import { useRouter } from 'next/router';
 
 export default function Home({ results }) {
   const router = useRouter();
-  const onClick = (id, title, poster_path) => {
-    router.push({ pathname: `/movies/${id}`, query: { title, poster_path } }, `/movies/${id}`);
+  const onClick = (id, title) => {
+    router.push(`/movies/${title}/${id}`);
   };
   return (
     <div className="container">
       <Seo title="home" />
       {results.map(el => (
-        <div onClick={() => onClick(el.id, el.title, el.poster_path)} className="movie" key={el.id}>
+        <div onClick={() => onClick(el.id, el.title)} className="movie" key={el.id}>
           <img src={`https://image.tmdb.org/t/p/w500/${el.poster_path}`} />
           <Link href={`/movies/${el.id}`}>
             <a>
