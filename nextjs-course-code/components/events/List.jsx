@@ -6,6 +6,7 @@ const List = ({ events }) => {
     <div className={classes.list}>
       {events.map((event) => (
         <Card
+          key={event.id}
           id={event.id}
           title={event.title}
           location={event.location}
